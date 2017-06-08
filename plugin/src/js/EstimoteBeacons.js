@@ -540,7 +540,7 @@ estimote.beacons.setupAppIDAndAppToken = function(appID, appToken, success, erro
  * (id set by the application, not related actual beacons).
  * @property {string} uuid The UUID of the region.
  * @property {number} major The UUID major value of the region.
- * @property {number} major The UUID minor value of the region.
+ * @property {number} minor The UUID minor value of the region.
  */
 
 /**
