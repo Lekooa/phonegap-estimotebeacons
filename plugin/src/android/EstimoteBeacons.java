@@ -842,35 +842,32 @@ public class EstimoteBeacons extends CordovaPlugin
 	private JSONArray makeJSONBeaconArray(List<Beacon> beacons)
 		throws JSONException {
 		JSONArray jsonArray = new JSONArray();
+
 		for (Beacon b : beacons) {
+
 			// Compute proximity value.
 			Proximity proximityValue = RegionUtils.computeProximity(b);
-			int proximity = 0; // Unknown.
-			if (Proximity.IMMEDIATE == proximityValue) {
-                proximity = 1;
-			} else if (Proximity.NEAR == proximityValue) {
-                proximity = 2;
-			} else if (Proximity.FAR == proximityValue) {
-                proximity = 3;
+			String proximity = "unkbown";
+			if (proximityValue == Proximity.IMMEDIATE) {
+                proximity = "immediate";
+			} else if (proximityValue == Proximity.NEAR) {
+                proximity = "near";
+			} else if (proximityValue == Proximity.FAR) {
+                proximity = "far";
 			}
-
-			// Compute distance value.
-			double distance = RegionUtils.computeAccuracy(b);
-
-			// Normalize UUID.
-			String uuid = b.getProximityUUID().toString();
 
 			// Construct JSON object for beacon.
 			JSONObject json = new JSONObject();
+
+
+			json.put("proximityUUID", b.getProximityUUID().toString());
 			json.put("major", b.getMajor());
 			json.put("minor", b.getMinor());
-			json.put("rssi", b.getRssi());
-			json.put("measuredPower", b.getMeasuredPower());
-			json.put("proximityUUID", uuid);
 			json.put("proximity", proximity);
-			json.put("distance", distance);
 			json.put("macAddress", b.getMacAddress());
-            json.put("uniqueKey", b.getUniqueKey());
+			json.put("accuracy", RegionUtils.computeAccuracy(b));
+			json.put("rssi", b.getRssi());
+
 			jsonArray.put(json);
 		}
 		return jsonArray;
