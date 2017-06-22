@@ -847,7 +847,7 @@ public class EstimoteBeacons extends CordovaPlugin
 
 			// Compute proximity value.
 			Proximity proximityValue = RegionUtils.computeProximity(b);
-			String proximity = "unkbown";
+			String proximity = "unknown";
 			if (proximityValue == Proximity.IMMEDIATE) {
                 proximity = "immediate";
 			} else if (proximityValue == Proximity.NEAR) {

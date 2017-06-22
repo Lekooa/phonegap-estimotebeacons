@@ -5,9 +5,10 @@
 #import <EstimoteSDK/ESTNearableManager.h>
 #import <EstimoteSDK/ESTTriggerManager.h>
 #import <EstimoteSDK/ESTNearableDefinitions.h>
-#import <EstimoteSDK/ESTCloudManager.h>
+#import <EstimoteSDK/ESTConfig.h>
 #import <EstimoteSDK/ESTEddystone.h>
 #import <EstimoteSDK/ESTEddystoneManager.h>
+#import <EstimoteSDK/ESTAnalyticsManager.h>
 #import <CoreBluetooth/CoreBluetooth.h>
 
 #import "EstimoteBeacons.h"
@@ -70,7 +71,7 @@
 @interface EstimoteBeacons ()
 <	ESTUtilityManagerDelegate,
 	ESTBeaconManagerDelegate,
-	ESTBeaconManagerDelegate,
+	ESTSecureBeaconManagerDelegate,
 	ESTNearableManagerDelegate,
 	ESTTriggerManagerDelegate,
 	CBCentralManagerDelegate >
@@ -93,7 +94,7 @@
 /**
  * Estimote Cloud manager.
  */
-@property (nonatomic, strong) ESTCloudManager* cloudManager;
+@property (nonatomic, strong) ESTConfig* configManager;
 
 /**
  * Dictionary with beacon colors fetched from the cloud.
@@ -232,7 +233,7 @@
 	self.secureBeaconManager.delegate = self;
 
 	// Create clound manager.
-	self.cloudManager = [ESTCloudManager new];
+	self.configManager = [ESTConfig new];
 	self.beaconColors = [NSMutableDictionary new];
 
 	// TODO: Create eddystoneBeaconManager and implement related methods.
@@ -376,15 +377,16 @@
 		// Color is not set. Set color to unknown to begin with.
 		self.beaconColors[beaconKey] = [NSNumber numberWithInt: ESTColorUnknown];
 
+		// TODO: get the color.
 		// Fetch color from cloud.
-		[self.cloudManager
+		/*[self.configManager
 			fetchColorForBeacon:beacon
 			completion:^(NSObject *value, NSError *error)
 			{
 				// TODO: Check error? Where are errors documented?
 				// Any threading problems setting color value async?
 				self.beaconColors[beaconKey] = value;
-			}];
+			}];*/
 	}
 
 	//////////////////////////////////////////////
@@ -414,7 +416,7 @@
 		[dict setValue:beacon.major forKey:@"major"];
 	[dict setValue:beacon.minor forKey:@"minor"];
 	[dict setValue:[NSNumber numberWithInteger:beacon.rssi] forKey:@"rssi"];
-	[dict setValue:beacon.macAddress forKey:@"macAddress"];
+	[dict setValue:beacon.identifier forKey:@"macAddress"];
 	[dict setValue:beacon.measuredPower forKey:@"measuredPower"];
 	[dict setValue:[NSNumber numberWithInteger:beacon.firmwareState] forKey:@"firmwareState"];
 
@@ -1013,7 +1015,7 @@
 {
 	BOOL enable = [[command argumentAtIndex: 0] boolValue];
 
-	[ESTCloudManager enableAnalytics: enable];
+	[ESTAnalyticsManager enableRangingAnalytics: enable];
 
 	[self.commandDelegate
 		sendPluginResult: [CDVPluginResult resultWithStatus: CDVCommandStatus_OK]
@@ -1022,7 +1024,7 @@
 
 - (void) beacons_isAnalyticsEnabled: (CDVInvokedUrlCommand*)command
 {
-	BOOL isAnalyticsEnabled = [ESTCloudManager isAnalyticsEnabled];
+	BOOL isAnalyticsEnabled = [ESTAnalyticsManager isRangingAnalyticsEnabled];
 
 	[self.commandDelegate
 		sendPluginResult: [CDVPluginResult
@@ -1033,7 +1035,7 @@
 
 - (void) beacons_isAuthorized: (CDVInvokedUrlCommand*)command
 {
-	BOOL isAuthorized = [ESTCloudManager isAuthorized];
+	BOOL isAuthorized = [ESTConfig isAuthorized];
 
 	[self.commandDelegate
 		sendPluginResult: [CDVPluginResult
@@ -1047,7 +1049,7 @@
 	NSString* appID = [command argumentAtIndex: 0];
 	NSString* appToken = [command argumentAtIndex: 1];
 
-	[ESTCloudManager setupAppID: appID andAppToken: appToken];
+	[ESTConfig setupAppID: appID andAppToken: appToken];
 
 	[self.commandDelegate
 		sendPluginResult: [CDVPluginResult resultWithStatus: CDVCommandStatus_OK]
