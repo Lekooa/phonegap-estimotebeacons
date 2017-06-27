@@ -7,7 +7,6 @@
 //  |______|___/\__|_|_| |_| |_|\___/ \__\___| |_____/|_____/|_|\_\
 //
 //
-//  Version: 3.3.1
 //  Copyright (c) 2015 Estimote. All rights reserved.
 
 #import <Foundation/Foundation.h>
@@ -15,10 +14,19 @@
 #import "ESTBeaconManagerDelegate.h"
 #import <CoreLocation/CoreLocation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 #define ESTIMOTE_PROXIMITY_UUID             [[NSUUID alloc] initWithUUIDString:@"B9407F30-F5F8-466E-AFF9-25556B57FE6D"]
 #define ESTIMOTE_MACBEACON_PROXIMITY_UUID   [[NSUUID alloc] initWithUUIDString:@"08D4A950-80F0-4D42-A14B-D53E063516E6"]
 #define ESTIMOTE_IOSBEACON_PROXIMITY_UUID   [[NSUUID alloc] initWithUUIDString:@"8492E75F-4FD6-469D-B132-043FE94921D8"]
 
+#define ESTBeaconManagerErrorDomain @"ESTBeaconManagerErrorDomain"
+
+typedef NS_ENUM(NSInteger, ESTBeaconManagerError)
+{
+    ESTBeaconManagerErrorInvalidRegion = 1,
+    ESTBeaconManagerErrorLocationServicesUnauthorized
+};
 
 @interface ESTBeaconManager : NSObject
 
@@ -27,7 +35,7 @@
  *
  * @see ESTBeaconManagerDelegate
  */
-@property (nonatomic, weak) id <ESTBeaconManagerDelegate> delegate;
+@property (nonatomic, weak) id <ESTBeaconManagerDelegate> _Nullable delegate;
 
 #pragma mark iBeacon utilities
 ///--------------------------------------------------------------------
@@ -78,7 +86,7 @@
 - (void)startAdvertisingWithProximityUUID:(NSUUID *)proximityUUID
                                     major:(CLBeaconMajorValue)major
                                     minor:(CLBeaconMinorValue)minor
-                               identifier:(NSString*)identifier;
+                               identifier:(NSString *)identifier;
 
 - (void)stopAdvertising;
 
@@ -120,6 +128,16 @@
  */
 - (void)requestAlwaysAuthorization;
 
+/**
+ * Checks if the current Location Services authorization is enough to do ranging (i.e., either 'when in use' or 'always').
+ */
+- (BOOL)isAuthorizedForRanging;
+
+/**
+ * Checks if the current Location Services authorization is enough to do monitoring (i.e., 'always').
+ */
+- (BOOL)isAuthorizedForMonitoring;
+
 
 #pragma mark CoreLocation Based Scanning
 ///--------------------------------------------------------------------
@@ -136,6 +154,7 @@
  * @param region The region object that defines the boundary to monitor. This parameter must not be `nil.`
  *
  * @see stopMonitoringForRegion:
+ * @see stopMonitoringForAllRegions
  */
 - (void)startMonitoringForRegion:(CLBeaconRegion *)region;
 
@@ -147,8 +166,17 @@
  * @param region The region object currently being monitored. This parameter must not be `nil`. The object you specify need not be the exact same object that you registered but its beacon region attributes should be the same.
  *
  * @see startMonitoringForRegion:
+ * @see stopMonitoringForAllRegions
  */
 - (void)stopMonitoringForRegion:(CLBeaconRegion *)region;
+
+/**
+ * Stops monitoring all monitored regions.
+ *
+ * @see startMonitoringForRegion:
+ * @see stopMonitoringForRegion:
+ */
+- (void)stopMonitoringForAllRegions;
 
 /**
  * Starts the delivery of notifications for beacons in the specified region.
@@ -158,6 +186,7 @@
  * @param region The region object that defines the identifying information for the targeted beacons. The number of beacons represented by this region object depends on which identifier values you use to initialize it. Beacons must match all of the identifiers you specify. This method copies the region information it needs from the object you provide. If `nil`, defaults to targeting all beacons with `proximityUUID` equal to `ESTIMOTE_PROXIMITY_UUID`.
  *
  * @see stopRangingBeaconsInRegion:
+ * @see stopRangingBeaconsInAllRegions
  */
 - (void)startRangingBeaconsInRegion:(CLBeaconRegion *)region;
 
@@ -167,8 +196,17 @@
  * @param region The region that identifies the beacons. The object you specify need not be the exact same object that you registered but its beacon region attributes should be the same. If `nil`, defaults to targeting all beacons with `proximityUUID` equal to `ESTIMOTE_PROXIMITY_UUID`.
  *
  * @see startRangingBeaconsInRegion:
+ * @see stopRangingBeaconsInAllRegions
  */
 - (void)stopRangingBeaconsInRegion:(CLBeaconRegion *)region;
+
+/**
+ * Stops the delivery of notifications for all ranged beacon regions.
+ *
+ * @see startRangingBeaconsInRegion:
+ * @see stopRangingBeaconsInRegion:
+ */
+- (void)stopRangingBeaconsInAllRegions;
 
 /**
  * Retrieves the state of a region.
@@ -205,3 +243,5 @@
 + (NSUUID *)motionProximityUUIDForProximityUUID:(NSUUID *)proximityUUID;
 
 @end
+
+NS_ASSUME_NONNULL_END

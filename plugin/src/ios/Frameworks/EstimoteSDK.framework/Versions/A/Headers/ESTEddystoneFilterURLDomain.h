@@ -8,6 +8,8 @@
 
 #import "ESTEddystoneFilter.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
 *  Eddystone-URLDomain based filter used by `ESTEddystoneManager` in discovery process.
 *  Filter should be initialized with URL Domain string that is matching device(s)
@@ -21,6 +23,9 @@
 
 @interface ESTEddystoneFilterURLDomain : ESTEddystoneFilter
 
+/**
+ *  URL Domain broadcasted by the device (based on `ESTEddystoneURL`).
+ */
 @property (nonatomic, strong, readonly) NSString *eddystoneURLDomain;
 
 /**
@@ -29,3 +34,5 @@
 - (instancetype)initWithURLDomain:(NSString *)eddystoneURLDomain;
 
 @end
+
+NS_ASSUME_NONNULL_END

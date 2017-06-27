@@ -7,10 +7,11 @@
 //  |______|___/\__|_|_| |_| |_|\___/ \__\___| |_____/|_____/|_|\_\
 //
 //
-//  Version: 3.3.1
 //  Copyright (c) 2015 Estimote. All rights reserved.
 
 #import "ESTDefinitions.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 /**
  *  Type of the device marked on enclosure.
@@ -65,6 +66,32 @@ typedef NS_ENUM(NSInteger, ESTNearableFirmwareState)
     ESTNearableFirmwareStateApp
 };
 
+/**
+ *  Describes nearable broadcasting mode.
+ */
+
+typedef NS_ENUM(char, ESTNearableBroadcastingScheme)
+{
+    /**
+     *  Unkown broadcasting scheme.
+     */
+    ESTNearableBroadcastingSchemeUnknown = -1,
+    
+    /**
+     *  Connectable and non-connectable sticker’s packets mixed with iBeacon packet.
+     */
+    ESTNearableBroadcastingSchemeNearable,
+    
+    /**
+     *  Connectable sticker’s packets mixed with non-connectable iBeacon packet.
+     */
+    ESTNearableBroadcastingSchemeIBeacon,
+    
+    /**
+     *  Connectable sticker’s packet mixed with non-connectable Eddystone-URL packet.
+     */
+    ESTNearableBroadcastingSchemeEddystoneURL
+};
 
 @interface ESTNearableDefinitions : ESTDefinitions
 
@@ -77,5 +104,15 @@ typedef NS_ENUM(NSInteger, ESTNearableFirmwareState)
  */
 + (NSString *)nameForType:(ESTNearableType)type;
 
+/**
+ *  Returns NSString representation of nearable's broadcasting scheme name.
+ *
+ *  @param scheme nearable's broadcasting scheme
+ *
+ *  @return broadcasting scheme name
+ */
++ (NSString *)nameForNearableBroadcastingScheme:(ESTNearableBroadcastingScheme)scheme;
 
 @end
+
+NS_ASSUME_NONNULL_END

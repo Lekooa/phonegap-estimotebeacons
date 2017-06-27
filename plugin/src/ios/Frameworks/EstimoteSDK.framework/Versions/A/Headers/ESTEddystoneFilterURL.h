@@ -7,10 +7,12 @@
 //  |______|___/\__|_|_| |_| |_|\___/ \__\___| |_____/|_____/|_|\_\
 //
 //
-//  Version: 3.3.1
 //  Copyright (c) 2015 Estimote. All rights reserved.
 
 #import "ESTEddystoneFilter.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
 
 /**
 *  Eddystone-URL based filter used by `ESTEddystoneManager` in discovery process.
@@ -19,7 +21,6 @@
 *
 *  Default domain used by Estimote Devices is http://go.esti.be
 */
-
 @interface ESTEddystoneFilterURL : ESTEddystoneFilter
 
 @property (nonatomic, strong, readonly) NSString *eddystoneURL;
@@ -30,3 +31,5 @@
 - (instancetype)initWithURL:(NSString *)eddystoneURL;
 
 @end
+
+NS_ASSUME_NONNULL_END
