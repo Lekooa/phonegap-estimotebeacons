@@ -67,6 +67,28 @@ public class EstimoteBeacons extends CordovaPlugin {
     private CallbackContext mDeviceDisconnectionCallback;
 
     /**
+     * Create JSON object representing a BeaconRegion.
+     */
+    private static JSONObject makeJSONBeaconRegion(BeaconRegion region) throws JSONException {
+        return makeJSONBeaconRegion(region, null);
+    }
+
+    /**
+     * Create JSON object representing a region in the given state.
+     */
+    private static JSONObject makeJSONBeaconRegion(BeaconRegion region, String state) throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("identifier", region.getIdentifier());
+        json.put("uuid", region.getProximityUUID());
+        json.put("major", region.getMajor());
+        json.put("minor", region.getMinor());
+        if (state != null) {
+            json.put("state", state);
+        }
+        return json;
+    }
+
+    /**
      * Plugin initializer.
      */
     @Override
@@ -112,7 +134,8 @@ public class EstimoteBeacons extends CordovaPlugin {
 
     /**
      * The final call you receive before your activity is destroyed.
-     */
+     *  
+     */
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -124,7 +147,8 @@ public class EstimoteBeacons extends CordovaPlugin {
 
     /**
      * Disconnect from the beacon manager.
-     */
+     *  
+     */
     private void disconnectBeaconManager() {
         if (mBeaconManager != null && mIsConnected) {
             mBeaconManager.disconnect();
@@ -774,28 +798,6 @@ public class EstimoteBeacons extends CordovaPlugin {
     }
 
     /**
-     * Create JSON object representing a BeaconRegion.
-     */
-    private static JSONObject makeJSONBeaconRegion(BeaconRegion region) throws JSONException {
-        return makeJSONBeaconRegion(region, null);
-    }
-
-    /**
-     * Create JSON object representing a region in the given state.
-     */
-    private static JSONObject makeJSONBeaconRegion(BeaconRegion region, String state) throws JSONException {
-        JSONObject json = new JSONObject();
-        json.put("identifier", region.getIdentifier());
-        json.put("uuid", region.getProximityUUID());
-        json.put("major", region.getMajor());
-        json.put("minor", region.getMinor());
-        if (state != null) {
-            json.put("state", state);
-        }
-        return json;
-    }
-
-    /**
      * Create JSON object representing a beacon list.
      */
     private JSONArray makeJSONBeaconArray(List<Beacon> beacons) throws JSONException {
@@ -821,7 +823,7 @@ public class EstimoteBeacons extends CordovaPlugin {
             json.put("major", b.getMajor());
             json.put("minor", b.getMinor());
             json.put("proximity", proximity);
-            json.put("macAddress", b.getMacAddress());
+            json.put("macAddress", b.getMacAddress().toString());
             json.put("accuracy", RegionUtils.computeAccuracy(b));
             json.put("rssi", b.getRssi());
 
@@ -831,18 +833,8 @@ public class EstimoteBeacons extends CordovaPlugin {
     }
 
     private String beaconRegionHashMapKey(String uuid, Integer major, Integer minor) {
-        // uuid comes from toString() or optString()
-        if (uuid.equals("")) {
-            uuid = "0";
-        }
-        if (major == null) {
-            major = 0;
-        }
-        if (minor == null) {
-            minor = 0;
-        }
-        // use % for easier decomposition
-        return uuid + "%" + major + "%" + minor;
+        // use % for easier decomposition.
+        return (uuid == null ? "0" : uuid) + "%" + (major == null ? "0" : major) + "%" + (minor == null ? "0" : minor);
     }
 
     private JSONObject makeJSONDeviceInfo(List<ConfigurableDevice> devices) throws JSONException {
@@ -873,25 +865,28 @@ public class EstimoteBeacons extends CordovaPlugin {
     }
 
     private String beaconRegionHashMapKey(BeaconRegion region) {
-        String uuid = (region.getProximityUUID() == null ? "0" : region.getProximityUUID().toString());
-        Integer major = region.getMajor();
-        Integer minor = region.getMinor();
 
-        return beaconRegionHashMapKey(uuid, major, minor);
+        UUID uuid = region.getProximityUUID();
+
+        return beaconRegionHashMapKey((uuid == null ? null : uuid.toString()), region.getMajor(), region.getMinor());
     }
 
     /**
      * Create a BeaconRegion object from Cordova arguments.
      */
     private BeaconRegion createBeaconRegion(JSONObject json) {
-        // null ranges all regions, if unset
-        String uuid = json.optString("uuid", "");
+
+        String uuid = json.optString("uuid", null);
+
+        // The optString method has a bug, not returning null but "".
+        String uuid2 = (uuid.equals("")) ? null : uuid;
+        
         Integer major = optUInt16Null(json, "major");
         Integer minor = optUInt16Null(json, "minor");
 
         String identifier = json.optString("identifier", beaconRegionHashMapKey(uuid, major, minor));
 
-        UUID uuidFinal = isValidUuid(uuid) ? UUID.fromString(uuid) : null;
+        UUID uuidFinal = isValidUuid(uuid2) ? UUID.fromString(uuid2) : null;
 
         return (new BeaconRegion(identifier, uuidFinal, major, minor));
     }
@@ -1119,12 +1114,12 @@ public class EstimoteBeacons extends CordovaPlugin {
             return mDeviceConnection;
         }
 
-        ConfigurableDevice getDevice() {
-            return mDevice;
-        }
-
         void setDeviceConnection(DeviceConnection deviceConnection) {
             mDeviceConnection = deviceConnection;
+        }
+
+        ConfigurableDevice getDevice() {
+            return mDevice;
         }
     }
 }
