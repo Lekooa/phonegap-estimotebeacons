@@ -877,16 +877,13 @@ public class EstimoteBeacons extends CordovaPlugin {
     private BeaconRegion createBeaconRegion(JSONObject json) {
 
         String uuid = json.optString("uuid", null);
-
-        // The optString method has a bug, not returning null but "".
-        String uuid2 = (uuid.equals("")) ? null : uuid;
         
         Integer major = optUInt16Null(json, "major");
         Integer minor = optUInt16Null(json, "minor");
 
         String identifier = json.optString("identifier", beaconRegionHashMapKey(uuid, major, minor));
 
-        UUID uuidFinal = isValidUuid(uuid2) ? UUID.fromString(uuid2) : null;
+        UUID uuidFinal = isValidUuid(uuid) ? UUID.fromString(uuid) : null;
 
         return (new BeaconRegion(identifier, uuidFinal, major, minor));
     }
