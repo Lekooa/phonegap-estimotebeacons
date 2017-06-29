@@ -259,33 +259,39 @@ public class EstimoteBeacons extends CordovaPlugin {
         Log.i(LOGTAG, "startRangingBeaconsInRegion");
 
         JSONObject json = cordovaArgs.getJSONObject(0);
-        // The region is final because used in the onServiceReady method
+        // The region is final because used in the onServiceReady method.
         final BeaconRegion region = createBeaconRegion(json);
-        String key = beaconRegionHashMapKey(region);
 
-        if (mRangingCallbackContexts.get(key) == null) {
-            // Add callback to hash map.
-            mRangingCallbackContexts.put(key, callbackContext);
+        // Check the region validity.
+        if (region != null) {
+            String key = region.getIdentifier();
 
-            // Create ranging listener.
-            mBeaconManager.setRangingListener(new PluginRangingListener());
+            if (mRangingCallbackContexts.get(key) == null) {
+                // Add callback to hash map.
+                mRangingCallbackContexts.put(key, callbackContext);
 
-            // If connected start ranging immediately, otherwise first connect.
-            if (mIsConnected) {
-                startRanging(region, callbackContext);
-            } else {
-                Log.i(LOGTAG, "connect");
+                // Create ranging listener.
+                mBeaconManager.setRangingListener(new PluginRangingListener());
 
-                mBeaconManager.connect(new BeaconManager.ServiceReadyCallback() {
-                    @Override
-                    public void onServiceReady() {
-                        Log.i(LOGTAG, "onServiceReady");
+                // If connected start ranging immediately, otherwise first connect.
+                if (mIsConnected) {
+                    startRanging(region, callbackContext);
+                } else {
+                    Log.i(LOGTAG, "connect");
 
-                        mIsConnected = true;
-                        startRanging(region, callbackContext);
-                    }
-                });
+                    mBeaconManager.connect(new BeaconManager.ServiceReadyCallback() {
+                        @Override
+                        public void onServiceReady() {
+                            Log.i(LOGTAG, "onServiceReady");
+
+                            mIsConnected = true;
+                            startRanging(region, callbackContext);
+                        }
+                    });
+                }
             }
+        } else {
+            callbackContext.error("Invalid UUID.");
         }
     }
 
@@ -313,76 +319,90 @@ public class EstimoteBeacons extends CordovaPlugin {
 
         JSONObject json = cordovaArgs.getJSONObject(0);
         BeaconRegion region = createBeaconRegion(json);
-        String key = beaconRegionHashMapKey(region);
 
-        CallbackContext rangingCallback = mRangingCallbackContexts.get(key);
-        // If ranging callback does not exist call error callback
-        if (rangingCallback == null) {
-            callbackContext.error("Region not ranged");
-        } else {
-            // Remove ranging callback from hash map.
-            mRangingCallbackContexts.remove(key);
+        // Check the region validity.
+        if (region != null) {
+            String key = region.getIdentifier();
 
-            // Clear ranging callback on JavaScript side.
-            PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
-            result.setKeepCallback(false);
-            rangingCallback.sendPluginResult(result);
-
-            // Stop ranging if connected.
-            if (mIsConnected) {
-                try {
-                    Log.i(LOGTAG, "stopRanging region: " + region.getIdentifier());
-
-                    // Stop ranging.
-                    mBeaconManager.stopRanging(region);
-
-                    // Send back success.
-                    callbackContext.success();
-                } catch (Exception e) {
-                    Log.e(LOGTAG, "stopRanging", e);
-
-                    callbackContext.error("stopRanging RemoteException");
-                }
+            CallbackContext rangingCallback = mRangingCallbackContexts.get(key);
+            // If ranging callback does not exist call error callback
+            if (rangingCallback == null) {
+                callbackContext.error("Region not ranged");
             } else {
-                callbackContext.error("Not connected");
+                // Remove ranging callback from hash map.
+                mRangingCallbackContexts.remove(key);
+
+                // Clear ranging callback on JavaScript side.
+                PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
+                result.setKeepCallback(false);
+                rangingCallback.sendPluginResult(result);
+
+                // Stop ranging if connected.
+                if (mIsConnected) {
+                    try {
+                        Log.i(LOGTAG, "stopRanging region: " + region.getIdentifier());
+
+                        // Stop ranging.
+                        mBeaconManager.stopRanging(region);
+
+                        // Send back success.
+                        callbackContext.success();
+                    } catch (Exception e) {
+                        Log.e(LOGTAG, "stopRanging", e);
+
+                        callbackContext.error("stopRanging RemoteException");
+                    }
+                } else {
+                    callbackContext.error("Not connected");
+                }
             }
+        } else {
+            callbackContext.error("Invalid UUID.");
         }
     }
 
     /**
      * Start monitoring for region.
      */
+
     private void startMonitoringForRegion(CordovaArgs cordovaArgs, final CallbackContext callbackContext)
             throws JSONException {
         Log.i(LOGTAG, "startMonitoringForRegion");
 
         JSONObject json = cordovaArgs.getJSONObject(0);
         final BeaconRegion region = createBeaconRegion(json);
-        String key = beaconRegionHashMapKey(region);
 
-        if (mMonitoringCallbackContexts.get(key) == null) {
-            // Add callback to hash map.
-            mMonitoringCallbackContexts.put(key, callbackContext);
+        // Check the region validity.
+        if (region != null) {
 
-            // Create monitoring listener.
-            mBeaconManager.setMonitoringListener(new PluginMonitoringListener());
+            String key = region.getIdentifier();
 
-            // If connected start monitoring immediately, otherwise first connect.
-            if (mIsConnected) {
-                startMonitoring(region, callbackContext);
-            } else {
-                Log.i(LOGTAG, "connect");
+            if (mMonitoringCallbackContexts.get(key) == null) {
+                // Add callback to hash map.
+                mMonitoringCallbackContexts.put(key, callbackContext);
 
-                mBeaconManager.connect(new BeaconManager.ServiceReadyCallback() {
-                    @Override
-                    public void onServiceReady() {
-                        Log.i(LOGTAG, "onServiceReady");
+                // Create monitoring listener.
+                mBeaconManager.setMonitoringListener(new PluginMonitoringListener());
 
-                        mIsConnected = true;
-                        startMonitoring(region, callbackContext);
-                    }
-                });
+                // If connected start monitoring immediately, otherwise first connect.
+                if (mIsConnected) {
+                    startMonitoring(region, callbackContext);
+                } else {
+                    Log.i(LOGTAG, "connect");
+
+                    mBeaconManager.connect(new BeaconManager.ServiceReadyCallback() {
+                        @Override
+                        public void onServiceReady() {
+                            Log.i(LOGTAG, "onServiceReady");
+
+                            mIsConnected = true;
+                            startMonitoring(region, callbackContext);
+                        }
+                    });
+                }
             }
+        } else {
+            callbackContext.error("Invalid region.");
         }
     }
 
@@ -410,39 +430,46 @@ public class EstimoteBeacons extends CordovaPlugin {
 
         JSONObject json = cordovaArgs.getJSONObject(0);
         BeaconRegion region = createBeaconRegion(json);
-        String key = beaconRegionHashMapKey(region);
 
-        CallbackContext monitoringCallback = mMonitoringCallbackContexts.get(key);
-        // If monitoring callback does not exist call error callback
-        if (monitoringCallback == null) {
-            callbackContext.error("Region not monitored");
-        } else {
-            // Remove monitoring callback from hash map.
-            mMonitoringCallbackContexts.remove(key);
+        // Check the region validity.
+        if (region != null) {
 
-            // Clear monitoring callback on JavaScript side.
-            PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
-            result.setKeepCallback(false);
-            monitoringCallback.sendPluginResult(result);
+            String key = beaconRegionHashMapKey(region);
 
-            // Stop monitoring if connected.
-            if (mIsConnected) {
-                try {
-                    Log.i(LOGTAG, "stopMonitoring");
-
-                    // Stop monitoring.
-                    mBeaconManager.stopMonitoring(region.getIdentifier());
-
-                    // Send back success.
-                    callbackContext.success();
-                } catch (Exception e) {
-                    Log.e(LOGTAG, "stopMonitoring", e);
-
-                    callbackContext.error("stopMonitoring RemoteException");
-                }
+            CallbackContext monitoringCallback = mMonitoringCallbackContexts.get(key);
+            // If monitoring callback does not exist call error callback
+            if (monitoringCallback == null) {
+                callbackContext.error("Region not monitored");
             } else {
-                callbackContext.error("Not connected");
+                // Remove monitoring callback from hash map.
+                mMonitoringCallbackContexts.remove(key);
+
+                // Clear monitoring callback on JavaScript side.
+                PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
+                result.setKeepCallback(false);
+                monitoringCallback.sendPluginResult(result);
+
+                // Stop monitoring if connected.
+                if (mIsConnected) {
+                    try {
+                        Log.i(LOGTAG, "stopMonitoring");
+
+                        // Stop monitoring.
+                        mBeaconManager.stopMonitoring(region.getIdentifier());
+
+                        // Send back success.
+                        callbackContext.success();
+                    } catch (Exception e) {
+                        Log.e(LOGTAG, "stopMonitoring", e);
+
+                        callbackContext.error("stopMonitoring RemoteException");
+                    }
+                } else {
+                    callbackContext.error("Not connected");
+                }
             }
+        } else {
+            callbackContext.error("Invalid region.");
         }
     }
 
@@ -877,15 +904,20 @@ public class EstimoteBeacons extends CordovaPlugin {
     private BeaconRegion createBeaconRegion(JSONObject json) {
 
         String uuid = json.optString("uuid", null);
-        
+
         Integer major = optUInt16Null(json, "major");
         Integer minor = optUInt16Null(json, "minor");
 
         String identifier = json.optString("identifier", beaconRegionHashMapKey(uuid, major, minor));
 
-        UUID uuidFinal = isValidUuid(uuid) ? UUID.fromString(uuid) : null;
+        BeaconRegion result = null;
 
-        return (new BeaconRegion(identifier, uuidFinal, major, minor));
+        if (isValidUuid(uuid)) {
+            UUID finalUuid = uuid != null ? UUID.fromString(uuid) : null;
+            result = new BeaconRegion(identifier, finalUuid, major, minor);
+        }
+
+        return result;
     }
 
     /**
@@ -906,7 +938,7 @@ public class EstimoteBeacons extends CordovaPlugin {
      * Check if the given UUID is valid.
      */
     private boolean isValidUuid(String uuid) {
-        return uuid != null && Pattern.matches("[[a-f]|[0-9]]{8}-[[a-f]|[0-9]]{4}-[[a-f]|[0-9]]{4}-[[a-f]|[0-9]]{4}-[[a-f]|[0-9]]{12}",
+        return uuid == null || Pattern.matches("[[a-f]|[0-9]]{8}-[[a-f]|[0-9]]{4}-[[a-f]|[0-9]]{4}-[[a-f]|[0-9]]{4}-[[a-f]|[0-9]]{12}",
                 uuid);
     }
 
