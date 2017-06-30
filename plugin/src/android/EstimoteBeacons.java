@@ -264,7 +264,7 @@ public class EstimoteBeacons extends CordovaPlugin {
 
         // Check the region validity.
         if (region != null) {
-            String key = region.getIdentifier();
+            String key = beaconRegionHashMapKey(region);
 
             if (mRangingCallbackContexts.get(key) == null) {
                 // Add callback to hash map.
@@ -300,7 +300,7 @@ public class EstimoteBeacons extends CordovaPlugin {
      */
     private void startRanging(BeaconRegion region, CallbackContext callbackContext) {
         try {
-            Log.i(LOGTAG, "startRanging region: " + region.getIdentifier());
+            Log.i(LOGTAG, "startRanging region: " + beaconRegionHashMapKey(region));
 
             mBeaconManager.startRanging(region);
         } catch (Exception e) {
@@ -322,7 +322,7 @@ public class EstimoteBeacons extends CordovaPlugin {
 
         // Check the region validity.
         if (region != null) {
-            String key = region.getIdentifier();
+            String key = beaconRegionHashMapKey(region);
 
             CallbackContext rangingCallback = mRangingCallbackContexts.get(key);
             // If ranging callback does not exist call error callback
@@ -340,7 +340,7 @@ public class EstimoteBeacons extends CordovaPlugin {
                 // Stop ranging if connected.
                 if (mIsConnected) {
                     try {
-                        Log.i(LOGTAG, "stopRanging region: " + region.getIdentifier());
+                        Log.i(LOGTAG, "stopRanging region: " + beaconRegionHashMapKey(region));
 
                         // Stop ranging.
                         mBeaconManager.stopRanging(region);
@@ -375,7 +375,7 @@ public class EstimoteBeacons extends CordovaPlugin {
         // Check the region validity.
         if (region != null) {
 
-            String key = region.getIdentifier();
+            String key = beaconRegionHashMapKey(region);
 
             if (mMonitoringCallbackContexts.get(key) == null) {
                 // Add callback to hash map.
@@ -455,7 +455,7 @@ public class EstimoteBeacons extends CordovaPlugin {
                         Log.i(LOGTAG, "stopMonitoring");
 
                         // Stop monitoring.
-                        mBeaconManager.stopMonitoring(region.getIdentifier());
+                        mBeaconManager.stopMonitoring(beaconRegionHashMapKey(region));
 
                         // Send back success.
                         callbackContext.success();
