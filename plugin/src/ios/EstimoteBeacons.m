@@ -9,7 +9,10 @@
 #import <EstimoteSDK/ESTEddystone.h>
 #import <EstimoteSDK/ESTEddystoneManager.h>
 #import <EstimoteSDK/ESTAnalyticsManager.h>
+#import <EstimoteSDK/ESTRequestGetBeaconsDetails.h>
 #import <CoreBluetooth/CoreBluetooth.h>
+
+#import <EstimoteSDK/ESTCloudManager.h>
 
 #import "EstimoteBeacons.h"
 
@@ -265,14 +268,11 @@
 - (CLBeaconRegion*) createRegionFromDictionary: (NSDictionary*)regionDict
 {
 	// Default values for the region object.
-	NSUUID* uuid = ESTIMOTE_PROXIMITY_UUID;
-	NSString* identifier = @"EstimoteSampleRegion";
-	CLBeaconMajorValue major = 0;
-	CLBeaconMinorValue minor = 0;
-	BOOL secure = false;
-	BOOL majorIsDefined = NO;
-	BOOL minorIsDefined = NO;
-	BOOL secureIsDefined = NO;
+    NSUUID* uuid = ESTIMOTE_PROXIMITY_UUID;
+	CLBeaconMajorValue* major = NULL;
+    CLBeaconMinorValue* minor = NULL;
+    NSString* identifier = @"default_region";
+
 
 	// Get region values.
 	for (id key in regionDict)
@@ -282,47 +282,38 @@
 		{
 			uuid = [[NSUUID alloc] initWithUUIDString: value];
 		}
-		else if ([key isEqualToString:@"identifier"])
-		{
-			identifier = value;
-		}
 		else if ([key isEqualToString:@"major"])
 		{
-			major = [value integerValue];
-			majorIsDefined = YES; }
+            *major = [value integerValue];
+        }
 		else if ([key isEqualToString:@"minor"])
 		{
-			minor = [value integerValue];
-			minorIsDefined = YES; }
-		else if ([key isEqualToString:@"secure"])
-		{
-			secure = [value boolValue];
-			secureIsDefined = YES;
-		}
+			*minor = [value integerValue];
+        }
+        else if ([key isEqualToString:@"identifier"])
+        {
+            identifier = value;
+        }
 	}
 
+    CLBeaconRegion* region = [CLBeaconRegion alloc];
 	// Create a beacon region object.
-	if (majorIsDefined && minorIsDefined)
-	{
-		return [[CLBeaconRegion alloc]
-			initWithProximityUUID: uuid
-			major: major
-			minor: minor
-			identifier: identifier];
-	}
-	else if (majorIsDefined)
-	{
-		return [[CLBeaconRegion alloc]
-			initWithProximityUUID: uuid
-			major: major
-			identifier: identifier];
-	}
-	else
-	{
-		return [[CLBeaconRegion alloc]
-			initWithProximityUUID: uuid
-			identifier: identifier];
-	}
+    if (major != NULL && minor != NULL) {
+		region = [region initWithProximityUUID: uuid
+                                         major: *major
+                                         minor: *minor
+                                    identifier: identifier];
+    }
+    else if (major != NULL) {
+        region = [region initWithProximityUUID: uuid
+                                         major: *major
+                                    identifier: identifier];
+    } else {
+        region = [region initWithProximityUUID: uuid
+                                    identifier: identifier];
+    }
+    
+    return region;
 }
 
 /**
@@ -377,9 +368,8 @@
 		// Color is not set. Set color to unknown to begin with.
 		self.beaconColors[beaconKey] = [NSNumber numberWithInt: ESTColorUnknown];
 
-		// TODO: get the color.
 		// Fetch color from cloud.
-		/*[self.configManager
+		/*[ESTCloudManager
 			fetchColorForBeacon:beacon
 			completion:^(NSObject *value, NSError *error)
 			{
@@ -387,6 +377,20 @@
 				// Any threading problems setting color value async?
 				self.beaconColors[beaconKey] = value;
 			}];*/
+        
+        /*NSArray *beaconList = @[beacon];
+
+        ESTRequestGetBeaconsDetails *beaconDetailsRequest = [[ESTRequestGetBeaconsDetails alloc] initWithBeacons:beaconList andFields:ESTBeaconDetailsFieldColor];
+        
+            [beaconDetailsRequest sendRequestWithCompletion:^(ESTBeaconVO *beaconVO, NSError *error) {
+                if (!error) {
+                    completion([[BeaconDetails alloc] initWithBeaconName:beaconVO.name beaconColor:beaconVO.color]);
+                } else {
+                    NSLog(@"Couldn't fetch data from Estimote Cloud for beacon %@, will use default values instead. Double-check if the app ID and app token provided in the AppDelegate are correct, and if the beacon with such ID is assigned to your Estimote Account. The error was: %@", beaconID, error);
+                    completion([[BeaconDetails alloc] initWithBeaconName:@"beacon" beaconColor:ESTColorUnknown]);
+                }
+            }];*/
+        
 	}
 
 	//////////////////////////////////////////////
