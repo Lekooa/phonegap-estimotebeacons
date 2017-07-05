@@ -36,7 +36,7 @@
 		<framework src="CoreLocation.framework" />
 		<framework src="SystemConfiguration.framework" />
 
-		<framework src="plugin/src/ios/Frameworks/EstimoteSDK.framework" custom="true" />
+		<framework src="EstimoteSDK.framework" />
 
 		<header-file src="plugin/src/ios/EstimoteBeacons.h" />
 		<source-file src="plugin/src/ios/EstimoteBeacons.m" />
