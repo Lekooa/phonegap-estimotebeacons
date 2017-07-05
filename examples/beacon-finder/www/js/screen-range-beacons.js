@@ -34,20 +34,11 @@
 		{
 			var colorClasses = app.beaconColorStyle(beacon.color);
 			var htm = '<div class="' + colorClasses + '">'
-				+ '<table><tr><td>Major</td><td>' + beacon.major
-				+ '</td></tr><tr><td>Minor</td><td>' + beacon.minor
-				+ '</td></tr><tr><td>RSSI</td><td>' + beacon.rssi
-			if (beacon.proximity)
-			{
-				htm += '</td></tr><tr><td>Proximity</td><td>'
-					+ app.formatProximity(beacon.proximity)
-			}
-			if (beacon.distance)
-			{
-				htm += '</td></tr><tr><td>Distance</td><td>'
-					+ app.formatDistance(beacon.distance)
-			}
-			htm += '</td></tr></table></div>';
+				+ '<table><td>UUID:</td><td>' + beacon.proximityUUID
+				+ '<tr><td>Major:</td><td>' + beacon.major
+				+ '</td></tr><tr><td>Minor:</td><td>' + beacon.minor
+				+ '</td></tr><tr><td>Proximity:</td><td>' + beacon.proximity
+				+ '</td></tr></table></div>';
 			return htm;
 		};
 
@@ -57,6 +48,9 @@
 
 		// Request authorisation.
 		estimote.beacons.requestAlwaysAuthorization();
+
+		// Initialize Estimote cloud connection.
+		estimote.beacons.setupAppIDAndAppToken("e-marger-hly", "4468abb019e6716831aa3926ea378abd");
 
 		// Start ranging.
 		estimote.beacons.startRangingBeaconsInRegion(
