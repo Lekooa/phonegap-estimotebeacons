@@ -269,26 +269,32 @@
 {
 	// Default values for the region object.
     NSUUID* uuid = ESTIMOTE_PROXIMITY_UUID;
-	CLBeaconMajorValue* major = NULL;
-    CLBeaconMinorValue* minor = NULL;
+	CLBeaconMajorValue major = 0;
+    CLBeaconMajorValue minor = 0;
     NSString* identifier = @"default_region";
-
+    
+    NSString* value = nil;
+    bool isMajorDefined = false;
+    bool isMinorDefined = false;
 
 	// Get region values.
 	for (id key in regionDict)
 	{
-		NSString* value = regionDict[key];
+		value = regionDict[key];
+        
 		if ([key isEqualToString:@"uuid"])
 		{
 			uuid = [[NSUUID alloc] initWithUUIDString: value];
 		}
-		else if ([key isEqualToString:@"major"])
+		else if ([key isEqualToString:@"major"] && ([value class] != [NSNull class]))
 		{
-            *major = [value integerValue];
+            major = [value integerValue];
+            isMajorDefined = true;
         }
-		else if ([key isEqualToString:@"minor"])
+		else if ([key isEqualToString:@"minor"] && ([value class] != [NSNull class]))
 		{
-			*minor = [value integerValue];
+			minor = [value integerValue];
+            isMinorDefined = true;
         }
         else if ([key isEqualToString:@"identifier"])
         {
@@ -298,16 +304,19 @@
 
     CLBeaconRegion* region = [CLBeaconRegion alloc];
 	// Create a beacon region object.
-    if (major != NULL && minor != NULL) {
-		region = [region initWithProximityUUID: uuid
-                                         major: *major
-                                         minor: *minor
-                                    identifier: identifier];
-    }
-    else if (major != NULL) {
-        region = [region initWithProximityUUID: uuid
-                                         major: *major
-                                    identifier: identifier];
+    if (isMajorDefined) {
+        if (isMinorDefined) {
+            region = [region initWithProximityUUID: uuid
+                                             major: major
+                                             minor: minor
+                                        identifier: identifier];
+            
+        }
+        else {
+            region = [region initWithProximityUUID: uuid
+                                             major: major
+                                        identifier: identifier];
+        }
     } else {
         region = [region initWithProximityUUID: uuid
                                     identifier: identifier];
