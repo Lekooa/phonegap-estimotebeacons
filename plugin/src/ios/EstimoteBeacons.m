@@ -267,10 +267,10 @@
  */
 - (CLBeaconRegion*) createRegionFromDictionary: (NSDictionary*)regionDict
 {
-	// Default values for the region object.
+	 // Default values for the region object.
     NSUUID* uuid = ESTIMOTE_PROXIMITY_UUID;
-	CLBeaconMajorValue major = 0;
-    CLBeaconMajorValue minor = 0;
+    CLBeaconMajorValue major = 0;
+    CLBeaconMinorValue minor = 0;
     NSString* identifier = @"default_region";
     
     NSString* value = nil;
