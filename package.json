@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/evothings/phonegap-estimotebeacons.git"
+    "url": "git+https://github.com/Lekooa/phonegap-estimotebeacons.git"
   },
   "keywords": [
     "Estimote",
@@ -20,10 +20,10 @@
     "cordova-android",
     "cordova-ios"
   ],
-  "author": "Evothings",
+  "author": "Lekooa",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/evothings/phonegap-estimotebeacons/issues"
+    "url": "https://github.com/Lekooa/phonegap-estimotebeacons/issues"
   },
-  "homepage": "https://github.com/evothings/phonegap-estimotebeacons#readme"
+  "homepage": "https://github.com/Lekooa/phonegap-estimotebeacons#readme"
 }
