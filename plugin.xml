@@ -36,7 +36,7 @@
 		<framework src="CoreLocation.framework" />
 		<framework src="SystemConfiguration.framework" />
 
-		<framework src="plugin/src/ios/sdk/EstimoteSDK/EstimoteSDK.framework" />
+		<framework src="EstimoteSDK" type="podspec" spec="~> 4.17" />
 
 		<header-file src="plugin/src/ios/EstimoteBeacons.h" />
 		<source-file src="plugin/src/ios/EstimoteBeacons.m" />
