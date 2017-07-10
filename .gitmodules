@@ -1,4 +1,4 @@
 [submodule "plugin/src/ios/sdk"]
 	path = plugin/src/ios/sdk
 	url = https://github.com/Estimote/iOS-SDK
-	branch = tag/4.15.0
+	branch = origin/tag/4.15.0
