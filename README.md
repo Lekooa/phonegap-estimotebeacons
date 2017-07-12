@@ -1,7 +1,19 @@
 ## What's working here?
 
-version | 1.0.1 | 1.0.3
--- | - | -
+iOS:
+
+technology | working?
+-- | :-:
+ranging | OK
+secure ranging | OK
+monitoring | NOT TESTED
+secure monitoring | NOT TESTED
+discovery | NOT TESTED
+
+Android: 
+
+techonology | 1.0.1 | 1.0.3
+-- | :-: | :-:
 ranging | OK | NOT WORKING
 secure ranging | WORKING-ISH | NOT WORKING
 monitoring | OK | NOT TESTED
