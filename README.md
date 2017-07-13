@@ -20,7 +20,7 @@ monitoring | OK | NOT TESTED
 secure monitoring | NOT TESTED | NOT TESTED
 discovery | NOT WORKING | OK
 
-The ranging technology in 1.0.1 version works with a `beaconRegion()` and not a `beaconSecureRegion()` object. The ranging shows both non secure and secure beacons.
+The ranging technology in 1.0.1 version works with an empty `beaconRegion()` object and not a `beaconSecureRegion()` object. The ranging shows both non secure and secure beacons in this case.
 See https://github.com/Estimote/Android-SDK/issues/211.
 
 ## About the Cordova plug-in Estimote
