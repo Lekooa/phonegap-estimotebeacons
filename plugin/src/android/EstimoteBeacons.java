@@ -14,6 +14,7 @@ import android.util.Log;
 import com.estimote.coresdk.common.config.EstimoteSDK;
 import com.estimote.coresdk.observation.region.RegionUtils;
 import com.estimote.coresdk.observation.region.beacon.BeaconRegion;
+import com.estimote.coresdk.observation.region.beacon.SecureBeaconRegion;
 import com.estimote.coresdk.observation.utils.Proximity;
 import com.estimote.coresdk.recognition.packets.Beacon;
 import com.estimote.coresdk.recognition.packets.ConfigurableDevice;
@@ -200,7 +201,7 @@ public class EstimoteBeacons extends CordovaPlugin {
     /**
      * Create a BeaconRegion object from Cordova arguments.
      */
-    private static BeaconRegion createBeaconRegion(JSONObject json) {
+    private static BeaconRegion createBeaconRegion(JSONObject json, boolean isSecure) {
 
         String uuid = json.optString("uuid", null);
 
@@ -213,7 +214,12 @@ public class EstimoteBeacons extends CordovaPlugin {
 
         if (isValidUuid(uuid)) {
             UUID finalUuid = uuid != null ? UUID.fromString(uuid) : null;
-            result = new BeaconRegion(identifier, finalUuid, major, minor);
+
+            if (isSecure) {
+                result = new SecureBeaconRegion(identifier, finalUuid, major, minor);
+            } else {
+                result = new BeaconRegion(identifier, finalUuid, major, minor);
+            }
         }
 
         return result;
@@ -315,9 +321,9 @@ public class EstimoteBeacons extends CordovaPlugin {
         boolean res = true;
 
         if ("beacons_startRangingBeaconsInRegion".equals(action)) {
-            this.startRangingBeaconsInRegion(args, callbackContext);
+            this.startRangingBeaconsInRegion(args, callbackContext, false);
         } else if ("beacons_stopRangingBeaconsInRegion".equals(action)) {
-            this.stopRangingBeaconsInRegion(args, callbackContext);
+            this.stopRangingBeaconsInRegion(args, callbackContext, false);
         } else if ("beacons_startMonitoringForRegion".equals(action)) {
             this.startMonitoringForRegion(args, callbackContext);
         } else if ("beacons_stopMonitoringForRegion".equals(action)) {
@@ -328,6 +334,10 @@ public class EstimoteBeacons extends CordovaPlugin {
             this.stopDiscoveringDevices(callbackContext);
         } else if ("beacons_setupAppIDAndAppToken".equals(action)) {
             this.setupAppIDAndAppToken(args, callbackContext);
+        } else if ("beacons_startRangingSecureBeaconsInRegion".equals(action)) {
+            this.startRangingBeaconsInRegion(args, callbackContext, true);
+        } else if ("beacons_stopRangingSecureBeaconsInRegion".equals(action)) {
+            this.stopRangingBeaconsInRegion(args, callbackContext, true);
         } else if ("beacons_connectToDevice".equals(action)) {
             this.connectToDevice(args, callbackContext);
         } else if ("beacons_disconnectFromDevice".equals(action)) {
@@ -404,10 +414,13 @@ public class EstimoteBeacons extends CordovaPlugin {
     /**
      * Start ranging for beacons in the region passed in argument.
      */
-    private void startRangingBeaconsInRegion(CordovaArgs cordovaArgs, final CallbackContext callbackContext) throws JSONException {
+    private void startRangingBeaconsInRegion(CordovaArgs cordovaArgs, final CallbackContext callbackContext, boolean isSecure) throws JSONException {
         JSONObject json = cordovaArgs.getJSONObject(0);
+
         // The region is final because used in the onServiceReady() method.
-        final BeaconRegion region = createBeaconRegion(json);
+        final BeaconRegion region = createBeaconRegion(json, isSecure);
+
+        Log.d(LOGTAG, "The region to range: " + region + ".");
 
         // Check the region validity.
         if (region != null) {
@@ -457,9 +470,12 @@ public class EstimoteBeacons extends CordovaPlugin {
     /**
      * Stop ranging for beacons.
      */
-    private void stopRangingBeaconsInRegion(CordovaArgs cordovaArgs, final CallbackContext callbackContext) throws JSONException {
+    private void stopRangingBeaconsInRegion(CordovaArgs cordovaArgs, final CallbackContext callbackContext, boolean isSecure) throws JSONException {
         JSONObject json = cordovaArgs.getJSONObject(0);
-        BeaconRegion region = createBeaconRegion(json);
+
+        BeaconRegion region = createBeaconRegion(json, isSecure);
+
+        Log.d(LOGTAG, "The region to stop ranging: " + region + ".");
 
         // Check the region validity.
         if (region != null) {
@@ -506,7 +522,7 @@ public class EstimoteBeacons extends CordovaPlugin {
 
     private void startMonitoringForRegion(CordovaArgs cordovaArgs, final CallbackContext callbackContext) throws JSONException {
         JSONObject json = cordovaArgs.getJSONObject(0);
-        final BeaconRegion region = createBeaconRegion(json);
+        final BeaconRegion region = createBeaconRegion(json, false);
 
         // Check the region validity.
         if (region != null) {
@@ -557,7 +573,7 @@ public class EstimoteBeacons extends CordovaPlugin {
      */
     private void stopMonitoringForRegion(CordovaArgs cordovaArgs, final CallbackContext callbackContext) throws JSONException {
         JSONObject json = cordovaArgs.getJSONObject(0);
-        BeaconRegion region = createBeaconRegion(json);
+        BeaconRegion region = createBeaconRegion(json, false);
 
         // Check the region validity.
         if (region != null) {
