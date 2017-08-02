@@ -32,7 +32,7 @@ Add the Cordova whitelist plugin, this just needs to be done once:
 
 Add the Estimote plugin, this just needs to be done once for every update of the plugin:
 
-    cordova plugin add https://github.com/evothings/phonegap-estimotebeacons.git
+    cordova plugin add https://github.com/Lekooa/phonegap-estimotebeacons.git
 
 Add the platforms you wish to use (Android, iOS), this also only needs to be done once:
 
