@@ -242,7 +242,8 @@ public class EstimoteBeacons extends CordovaPlugin {
      * Check if the given UUID is valid.
      */
     private static boolean isValidUuid(String uuid) {
-        return uuid == null || Pattern.matches("[[a-f]|[0-9]]{8}-[[a-f]|[0-9]]{4}-[[a-f]|[0-9]]{4}-[[a-f]|[0-9]]{4}-[[a-f]|[0-9]]{12}", uuid);
+        String validChars = "[[a-fA-F]|[0-9]]";
+        return Pattern.matches(validChars + "{8}-" + validChars + "{4}-" + validChars + "{4}-" + validChars + "{4}-" + validChars + "{12}", uuid);
     }
 
     /**
